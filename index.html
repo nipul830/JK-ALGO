@@ -1,34 +1,7 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JK-ALGO | Paper Trading</title>
-<link rel="stylesheet" href="web/style.css">
-</head>
-<body>
-<main class="app">
-<header><div><h1>JK-ALGO</h1><p>Delta Exchange · Paper Trading</p></div><span class="mode">PAPER MODE</span></header>
-<section class="grid">
-<div class="card"><small>MARKET</small><strong id="price">—</strong><span id="symbol">BTCUSD</span></div>
-<div class="card"><small>EMA 9</small><strong id="ema9">—</strong></div>
-<div class="card"><small>EMA 15</small><strong id="ema15">—</strong></div>
-<div class="card"><small>SIGNAL</small><strong id="signal">WAIT</strong></div>
-</section>
-<section class="panel">
-<div class="panel-head"><h2>Paper Trade</h2><button id="toggle">Start</button></div>
-<div class="trade"><span>Position</span><b id="position">FLAT</b></div>
-<div class="trade"><span>Entry</span><b id="entry">—</b></div>
-<div class="trade"><span>Realized P&amp;L</span><b id="pnl">0.00</b></div>
-</section>
-<section class="panel">
-<h2>AI Strategy</h2>
-<textarea id="logic" placeholder="Example: EMA 9 crosses EMA 15, go long; reverse on opposite crossover."></textarea>
-<button id="build">Build Strategy</button>
-<pre id="result">Default strategy: EMA 9 / EMA 15 crossover</pre>
-</section>
-<footer>V1 · Paper trading only · No real orders</footer>
-</main>
-<script src="web/app.js"></script>
-</body>
-</html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JK-ALGO</title><link rel="stylesheet" href="web/style.css"></head>
+<body><div class="shell">
+<header class="top"><div class="brand"><div class="logo">JK</div><div><h1>JK-ALGO</h1><small>Delta Exchange · Paper Trading</small></div></div><span class="paper">PAPER MODE</span></header>
+<nav><button data-page="home" class="active">Home</button><button data-page="pnl">P&amp;L</button><button data-page="ai">AI Builder</button><button data-page="settings">Settings</button></nav>
+<main id="app"></main>
+</div><script src="web/app.js"></script></body></html>
