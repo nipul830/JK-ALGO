@@ -27,14 +27,14 @@ function App(){
   const [layout,setLayout]=useState(1);
   const [algo,setAlgo]=useState(false);
   const [strategy,setStrategy]=useState("9 / 26 EMA Crossover");
-  const [trades,setTrades]=useState<Trade[]>(()=>{try{return JSON.parse(localStorage.getItem("jk.trades")||"[]")}catch{return[]}});
+  const [trades,setTrades]=useState<Trade[]>(()=>{try{return JSON.parse(localStorage.getItem("jk.trades")||"[]")}catch{return[]}});\n  const [livePrices,setLivePrices]=useState<Record<string,number>>({});
   const [toast,setToast]=useState("");
   useEffect(()=>localStorage.setItem("jk.mode",mode),[mode]);
   useEffect(()=>localStorage.setItem("jk.capital",String(capital)),[capital]);
   useEffect(()=>localStorage.setItem("jk.symbol",symbol),[symbol]);
   useEffect(()=>localStorage.setItem("jk.tf",tf),[tf]);
-  useEffect(()=>localStorage.setItem("jk.trades",JSON.stringify(trades)),[trades]);
-  const prices=useMemo(()=>{const p={...base}; Object.keys(p).forEach(k=>p[k]*=1+Math.sin(Date.now()/60000+k.length)*.001); return p},[symbol,trades]);
+  useEffect(()=>localStorage.setItem("jk.trades",JSON.stringify(trades)),[trades]);\n  useEffect(()=>{\n    let cancelled=false;\n    const symbols=assets.map(a=>a[0]);\n    const load=async()=>{\n      const next:Record<string,number>={};\n      await Promise.all(symbols.map(async s=>{\n        try{const r=await fetch(`/api/market/ticker?environment=testnet&symbol=${encodeURIComponent(s)}`); if(!r.ok)return; const j=await r.json(); const t=j?.result||j; const p=Number(t?.close??t?.mark_price??t?.spot_price??t?.last_price); if(Number.isFinite(p)) next[s]=p;}catch{}\n      }));\n      if(!cancelled&&Object.keys(next).length)setLivePrices(v=>({...v,...next}));\n    };\n    load(); const id=setInterval(load,3000); return()=>{cancelled=true;clearInterval(id)};\n  },[]);
+  const prices=useMemo(()=>({...base,...livePrices}),[livePrices]);
   const goChart=(s:string)=>{setSymbol(s);setPage("charts")};
   const execute=(side:Side)=>{
     if(mode==="REAL"){setToast("Real execution is locked until a verified broker adapter is connected.");return}
@@ -64,7 +64,7 @@ function App(){
 
 function Watchlist({prices,selected,open}:{prices:Record<string,number>;selected:string;open:(s:string)=>void}){
  return <section><div className="head"><div><em>MARKET OVERVIEW</em><h1>Watchlist</h1></div><button className="plain"><Plus/></button></div>
- <div className="status"><span><i/> Live feed ready</span><small>Paper engine active</small></div>
+ <div className="status"><span><i/> {Object.keys(livePrices).length?"Live market feed connected":"Connecting to market feed…"}</span><small>Paper engine active</small></div>
  <div className="labels"><span>SYMBOLS</span><span>PRICE&nbsp;&nbsp;&nbsp; CHANGE</span></div>
  <div className="list">{assets.map((a,i)=>{const c=Math.sin(i*2.1+Date.now()/180000)*1.2;return <button className={"row "+(selected===a[0]?"chosen":"")} key={a[0]} onClick={()=>open(a[0])}><b className="asset">{a[2]}</b><div><strong>{a[0]}</strong><small>{a[1]}</small></div><div className="quote"><strong>{(prices[a[0]]||a[3]).toLocaleString("en-IN",{maximumFractionDigits:2})}</strong><small className={c>=0?"up":"down"}>{c>=0?"+":""}{c.toFixed(2)}%</small></div><ChevronDown size={15}/></button>})}</div>
  </section>
