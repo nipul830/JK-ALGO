@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Bell, ChevronDown, CircleDollarSign, Crosshair, LineChart, List, Maximize2, Plus, RotateCcw, Settings, SlidersHorizontal, Sparkles, TrendingDown, TrendingUp, Wallet, X, Zap } from "lucide-react";
 import "./styles.css";
