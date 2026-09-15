@@ -1,9 +1,67 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0f14"><title>JK ALGO — Paper Trading</title><link rel="stylesheet" href="./style.css"></head>
-<body><header><div class="brand"><span class="logo">JK</span><div><b>JK ALGO</b><small>Live Market • Paper Trading</small></div></div><div class="status"><i id="dot"></i><span id="connection">Connecting…</span></div></header>
-<main><section class="toolbar"><div><label>Symbol</label><select id="symbol"><option>BTCUSD</option><option>ETHUSD</option><option>SOLUSD</option></select></div><div><label>Timeframe</label><select id="timeframe"><option>1m</option><option selected>5m</option><option>15m</option><option>1h</option></select></div><div><label>Strategy</label><strong>EMA 9 / 26</strong></div><button id="algo" class="on">ALGO ON</button><button id="reset" class="ghost">Reset Paper</button></section>
-<section class="grid"><div class="panel chart"><div class="panelhead"><b id="pair">BTCUSD</b><span id="price">—</span><span id="signal">WAIT</span></div><canvas id="chart"></canvas></div>
-<div class="panel stats"><h3>Paper Account</h3><div class="cards"><div><span>Balance</span><b id="balance">$10,000.00</b></div><div><span>Equity</span><b id="equity">$10,000.00</b></div><div><span>Realized P&L</span><b id="pnl">$0.00</b></div><div><span>Position</span><b id="position">NONE</b></div></div><div class="risk"><span>Risk / trade</span><b>0.5%</b><span>SL / TP</span><b>1% / 1%</b></div></div></section>
-<section class="panel trade"><div class="panelhead"><h3>Trade</h3><span id="mode">PAPER ONLY</span></div><div id="empty">No open position</div><div id="pos" class="position hidden"></div></section>
-<section class="panel"><div class="panelhead"><h3>Order History</h3><span>Latest 20</span></div><div class="tablewrap"><table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>P&L</th><th>Reason</th></tr></thead><tbody id="history"></tbody></table></div></section>
-</main><footer>Market data: Delta public feed • Execution: simulated locally • No real orders</footer><script src="./app.js"></script></body></html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080c12">
+<title>JK Algo Hub</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div id="app">
+<header class="topbar">
+  <div class="brand"><div class="logo">JK</div><div><strong>JK ALGO HUB</strong><small id="subtitle">Paper Trading</small></div></div>
+  <div class="top-actions"><button class="mode-pill" id="modeBtn">PAPER</button><span class="connection"><i id="connDot"></i><span id="connText">Connecting</span></span></div>
+</header>
+
+<main id="content">
+<section class="page active" id="page-watchlist">
+  <div class="page-title"><div><h1>Watchlist</h1><p>Markets & instruments</p></div><button class="icon-btn" id="addWatch">＋</button></div>
+  <div class="watch-grid" id="watchlist"></div>
+</section>
+
+<section class="page" id="page-charts">
+  <div class="chart-head">
+    <div><button class="symbol-chip" id="chartSymbol">BTCUSD ▾</button><span class="live-price" id="chartPrice">—</span><span class="price-change" id="chartChange">—</span></div>
+    <div class="chart-actions"><button class="tool-btn" id="layoutBtn">1</button><button class="tool-btn" id="toolsBtn">Tools</button><button class="tool-btn" id="indBtn">Indicators</button><button class="tool-btn" id="settingsBtn">⚙</button></div>
+  </div>
+  <div class="timeframes" id="timeframes"></div>
+  <div class="chart-workspace" id="chartWorkspace"></div>
+</section>
+
+<section class="page" id="page-algo">
+  <div class="page-title"><div><h1>Algo</h1><p>Automated strategy execution</p></div><label class="switch"><input type="checkbox" id="algoToggle"><span></span></label></div>
+  <div class="card algo-card">
+    <div class="algo-row"><div><span class="label">Trading mode</span><b id="algoMode">PAPER TRADING</b></div><button class="select-btn" id="modeSelect">Change ▾</button></div>
+    <div class="form-grid">
+      <label>Capital<input id="algoCapital" type="number" min="1" step="1" value="10000"></label>
+      <label>Symbol<button class="select-input" id="algoSymbol">BTCUSD ▾</button></label>
+      <label>Timeframe<button class="select-input" id="algoTf">5m ▾</button></label>
+      <label>Strategy<button class="select-input" id="algoStrategy">EMA 9 / 26 ▾</button></label>
+    </div>
+    <div class="strategy-box"><div><span class="label">Active strategy</span><strong id="strategyName">EMA 9 / 26 crossover</strong></div><span class="status-badge" id="algoStatus">OFF</span></div>
+    <button class="primary full" id="customStrategy">＋ Custom Strategy</button>
+  </div>
+  <div class="card"><div class="section-head"><h3>Execution</h3><span id="algoLast">No signal yet</span></div><div class="execution-log" id="algoLog"><div class="empty">Algo is ready. Turn it ON to allow new paper trades.</div></div></div>
+  <div class="card"><div class="section-head"><h3>Broker / API</h3><span class="status-badge muted" id="apiStatus">NOT CONNECTED</span></div><div class="form-grid"><label>Broker<select id="broker"><option>Custom REST / WebSocket</option><option>Zerodha Kite Connect</option><option>Upstox API</option><option>Angel One SmartAPI</option><option>Fyers API</option><option>5paisa API</option><option>Dhan API</option><option>Binance</option><option>Delta Exchange</option></select></label><label>API Key<input id="apiKey" type="password" placeholder="Stored locally"></label><label>API Secret<input id="apiSecret" type="password" placeholder="Stored locally"></label><label>Access Token<input id="accessToken" type="password" placeholder="Optional"></label></div><button class="secondary full" id="testApi">Test Connection</button><p class="hint">Credentials are stored only in this browser's local storage. Real trading is blocked until explicitly enabled.</p></div>
+</section>
+
+<section class="page" id="page-pnl">
+  <div class="page-title"><div><h1>P&L</h1><p id="accountMode">Paper account</p></div><button class="icon-btn" id="accountSettings">⚙</button></div>
+  <div class="account-strip"><div><span>Equity</span><strong id="equity">₹10,000.00</strong></div><div><span>Available</span><strong id="available">₹10,000.00</strong></div><div><span>Total P&L</span><strong id="totalPnl">₹0.00</strong></div></div>
+  <div class="tabs"><button class="active" data-tab="positions">Position</button><button data-tab="pending">Pending Order</button><button data-tab="closed">Closed</button></div>
+  <div id="pnlList"></div>
+</section>
+</main>
+
+<nav class="bottom-nav">
+<button class="nav-item active" data-page="watchlist"><span>⌂</span><small>Watchlist</small></button>
+<button class="nav-item" data-page="charts"><span>▥</span><small>Charts</small></button>
+<button class="nav-item" data-page="algo"><span>⚡</span><small>Algo</small></button>
+<button class="nav-item" data-page="pnl"><span>▤</span><small>P&L</small></button>
+</nav>
+
+<div class="modal hidden" id="modal"><div class="modal-sheet"><div class="modal-head"><h3 id="modalTitle">Select</h3><button id="modalClose">×</button></div><div id="modalBody"></div></div></div>
+<div id="toast"></div>
+<script src="./app.js"></script>
+</body></html>
