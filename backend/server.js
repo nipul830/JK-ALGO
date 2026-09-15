@@ -109,6 +109,28 @@ app.get("/api/market/ticker", async (req, res) => {
   }
 });
 
+
+// Historical OHLC candle proxy. Public endpoint; no credentials required.
+app.get("/api/market/candles", async (req, res) => {
+  try {
+    const environment = req.query.environment === "live" ? "live" : "testnet";
+    const symbol = String(req.query.symbol || "").trim();
+    const resolution = String(req.query.resolution || "5m").trim();
+    const end = Number(req.query.end || Math.floor(Date.now() / 1000));
+    const start = Number(req.query.start || end - 86400);
+    if (!symbol) return res.status(400).json({ ok:false, error:"symbol is required" });
+    const qs = buildQuery({ resolution, symbol, start, end });
+    const upstream = await fetch(deltaBase(environment) + "/v2/history/candles?" + qs, {
+      headers:{ Accept:"application/json", "User-Agent":"JK-Algo-Hub/1.0" }
+    });
+    const text = await upstream.text();
+    let data; try { data = JSON.parse(text); } catch { data = { raw:text.slice(0,2000) }; }
+    res.status(upstream.ok ? 200 : 502).json(data);
+  } catch (e) {
+    res.status(502).json({ ok:false, error:e.message });
+  }
+});
+
 // Verify API credentials against an authenticated read endpoint.
 // This does NOT place, modify or cancel an order.
 app.post("/api/delta/test", async (req, res) => {
