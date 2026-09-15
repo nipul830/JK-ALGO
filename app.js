@@ -4,6 +4,9 @@ const DEFAULT={mode:'paper',virtualCapital:10000,balance:10000,realized:0,positi
 let state=Object.assign({},DEFAULT,JSON.parse(localStorage.getItem(KEY)||'{}'));
 state.chartPanels=(state.chartPanels&&state.chartPanels.length?state.chartPanels:DEFAULT.chartPanels).map((x,i)=>Object.assign({},DEFAULT.chartPanels[i%2],x));
 state.positions=state.positions||[];state.pending=state.pending||[];state.closed=state.closed||[];state.watch=state.watch||DEFAULT.watch;state.api=Object.assign({},DEFAULT.api,state.api||{});
+const validLayouts=[1,2,4,6,8];
+if(!state.layoutInitialized){state.layout=1;state.layoutInitialized=true}
+if(!validLayouts.includes(Number(state.layout)))state.layout=1;
 let page=state.lastPage||'watchlist',activeTab='positions',layout=Number(state.layout)||1,feed={};
 const cryptoMap={BTCUSD:'BTCUSDT',ETHUSD:'ETHUSDT',SOLUSD:'SOLUSDT'};
 const names={BTCUSD:'Bitcoin',ETHUSD:'Ethereum',SOLUSD:'Solana',GOLD:'Gold',SILVER:'Silver',OIL:'Crude Oil',NIFTY:'Nifty 50',BANKNIFTY:'Bank Nifty',FINNIFTY:'Fin Nifty','NIFTY MIDCAP':'Nifty Midcap 100'};
@@ -41,7 +44,7 @@ function addTradeLine(el,type,price,p,min,max,ph,pad,range){const top=pad.t+(max
 function setTf(tf){state.lastTf=tf;state.chartPanels[0].tf=tf;$store();renderCharts();startMarket()}
 $('chartSymbol').onclick=()=>chooseSymbol(0);
 function chooseSymbol(idx){modal('Select Symbol',state.watch.map(s=>'<div class="option" data-s="'+s+'"><b>'+s+'</b><span>'+names[s]+'</span></div>').join(''));document.querySelectorAll('[data-s]').forEach(e=>e.onclick=()=>{state.chartPanels[idx].symbol=e.dataset.s;if(idx===0)state.lastSymbol=e.dataset.s;$store();closeModal();renderCharts();startMarket()})}
-$('layoutBtn').onclick=()=>{const n=layout===1?2:layout===2?4:layout===4?6:layout===6?8:1;layout=n;state.layout=n;$store();renderCharts()}
+$('layoutBtn').onclick=()=>{const n=layout===1?2:layout===2?4:layout===4?6:layout===6?8:1;layout=n;state.layout=n;state.layoutInitialized=true;$store();renderCharts()}
 $('toolsBtn').onclick=()=>modal('Chart Tools','<div class="draw-tool"><button data-tool="horizontal">Horizontal</button><button data-tool="vertical">Vertical</button><button data-tool="trend">Trend Line</button><button data-tool="ray">Ray</button><button data-tool="rect">Rectangle</button><button data-tool="cross">Crosshair</button></div><p class="hint">Drawing objects are stored per chart panel.</p>');document.addEventListener('click',function toolOnce(e){if(!e.target.dataset.tool)return;const tool=e.target.dataset.tool;state.chartPanels[0].drawings.push({type:tool,created:Date.now()});$store();closeModal();toast(tool+' tool selected')},{once:false});
 $('indBtn').onclick=()=>{const p=state.chartPanels[0];modal('Indicators','<div class="setting-row"><label>EMA 9</label><input type="checkbox" data-ind="ema9" '+(p.ind.ema9?'checked':'')+'></div><div class="setting-row"><label>EMA 26</label><input type="checkbox" data-ind="ema26" '+(p.ind.ema26?'checked':'')+'></div><div class="setting-row"><label>RSI</label><input type="checkbox" data-ind="rsi" '+(p.ind.rsi?'checked':'')+'></div><div class="setting-row"><label>MACD</label><input type="checkbox" data-ind="macd" '+(p.ind.macd?'checked':'')+'></div><div class="setting-row"><label>Bollinger Bands</label><input type="checkbox" data-ind="boll" '+(p.ind.boll?'checked':'')+'></div><div class="setting-row"><label>VWAP</label><input type="checkbox" data-ind="vwap" '+(p.ind.vwap?'checked':'')+'></div><div class="setting-row"><label>Volume</label><input type="checkbox" data-ind="volume" '+(p.ind.volume?'checked':'')+'></div>');document.querySelectorAll('[data-ind]').forEach(e=>e.onchange=()=>{p.ind[e.dataset.ind]=e.checked;$store();renderCharts()})}
 $('settingsBtn').onclick=()=>chartSettings();
