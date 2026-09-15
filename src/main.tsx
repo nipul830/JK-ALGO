@@ -57,7 +57,11 @@ function App(){
     </main>
     {toast&&<div className="toast">{toast}<button onClick={()=>setToast("")}><X size={13}/></button></div>}
     <nav>{([["watchlist",<List/>,"Watchlist"],["charts",<LineChart/>,"Charts"],["algo",<Zap/>,"Algo"],["pnl",<CircleDollarSign/>,"P&L"]] as [Page, React.ReactNode, string][]).map(([id,icon,label])=><button key={id} className={page===id?"navactive":""} onClick={()=>setPage(id)}>{icon}<span>{label}</span></button>)}
-    </nav>ct, { useEffect, useMemo, useState } from "react";
+    </nav>
+  </div>
+}
+
+function Watchlist
 import { createRoot } from "react-dom/client";
 import { Bell, ChevronDown, CircleDollarSign, Crosshair, LineChart, List, Maximize2, Plus, RotateCcw, Settings, SlidersHorizontal, Sparkles, TrendingDown, TrendingUp, Wallet, X, Zap } from "lucide-react";
 import "./styles.css";
