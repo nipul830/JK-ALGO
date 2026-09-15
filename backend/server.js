@@ -92,6 +92,23 @@ app.get("/api/market/products", async (req, res) => {
   }
 });
 
+
+// Public ticker proxy for live market-price polling.
+app.get("/api/market/ticker", async (req, res) => {
+  try {
+    const environment = req.query.environment === "live" ? "live" : "testnet";
+    const symbol = String(req.query.symbol || "").trim();
+    if (!symbol) return res.status(400).json({ ok:false, error:"symbol is required" });
+    const url = deltaBase(environment) + "/v2/tickers/" + encodeURIComponent(symbol);
+    const upstream = await fetch(url, { headers:{ Accept:"application/json", "User-Agent":"JK-Algo-Hub/1.0" } });
+    const text = await upstream.text();
+    let data; try { data = JSON.parse(text); } catch { data = { raw:text.slice(0,2000) }; }
+    res.status(upstream.ok ? 200 : 502).json(data);
+  } catch (e) {
+    res.status(502).json({ ok:false, error:e.message });
+  }
+});
+
 // Verify API credentials against an authenticated read endpoint.
 // This does NOT place, modify or cancel an order.
 app.post("/api/delta/test", async (req, res) => {
