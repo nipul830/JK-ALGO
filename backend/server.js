@@ -45,4 +45,4 @@ app.post('/api/delta/test',async(req,res)=>{
   }catch(e){res.status(400).json({ok:false,error:e.message});}
 });
 
-app.listen(PORT,()=>console.log('JK Algo Hub backend listening on '+PORT));
+if (!process.env.VERCEL) {\n  app.listen(PORT,()=>console.log('JK Algo Hub backend listening on '+PORT));\n}\n\nexport default app;
